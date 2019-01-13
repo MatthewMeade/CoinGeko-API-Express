@@ -9,6 +9,7 @@ let $;
 let lastGET;
 
 const updateData = async () => {
+  loading = true;
   const body = await request("https://coinmarketcap.com/all/views/all/");
   $ = cheerio.load(body);
   lastGET = Date.now();
