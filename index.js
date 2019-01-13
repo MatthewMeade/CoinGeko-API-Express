@@ -32,7 +32,7 @@ app.get("/historical/:name", async (req, res) => {
     "data-percentusd"
   );
 
-  res.send([hour, day, week].map(parseFloat));
+  res.send({ data: [hour, day, week].map(parseFloat) });
 });
 
 app.get("/price/:name", async (req, res) => {
@@ -40,7 +40,7 @@ app.get("/price/:name", async (req, res) => {
 
   const price = $(`#id-${req.params.name} .price`).attr("data-usd");
 
-  res.send(price);
+  res.send({ price });
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}!`));
