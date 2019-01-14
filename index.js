@@ -36,17 +36,22 @@ const ensureData = async () => {
 app.get("/historical/:name", async (req, res) => {
   await ensureData();
 
-  const hour = parseFloat(
-    $(`#id-${req.params.name} td[data-timespan='1h']`).attr("data-percentusd")
-  );
-  const day = parseFloat(
-    $(`#id-${req.params.name} td[data-timespan='24h']`).attr("data-percentusd")
-  );
-  const week = parseFloat(
-    $(`#id-${req.params.name} td[data-timespan='7d']`).attr("data-percentusd")
-  );
+  const hour =
+    parseFloat(
+      $(`#id-${req.params.name} td[data-timespan='1h']`).attr("data-percentusd")
+    ) / 100;
+  const day =
+    parseFloat(
+      $(`#id-${req.params.name} td[data-timespan='24h']`).attr(
+        "data-percentusd"
+      )
+    ) / 100;
+  const week =
+    parseFloat(
+      $(`#id-${req.params.name} td[data-timespan='7d']`).attr("data-percentusd")
+    ) / 100;
 
-  res.send({ day, hour, week });
+  res.send({ hour, day, week });
 });
 
 app.get("/price/:name", async (req, res) => {
