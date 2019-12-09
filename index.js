@@ -27,8 +27,11 @@ const getCoinData = async name => {
 };
 
 app.get("/:prop/:name", async (req, res) => {
-  const data = await getCoinData(req.params.name);
-  res.json(data[req.params.prop]);
+  const data = await getCoinData(req.params.name).catch(err =>
+    res.status(404).send({ error: err || `Unable to find ${req.params.name}` })
+  );
+
+  if (data) res.json(data[req.params.prop]);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}!`));
