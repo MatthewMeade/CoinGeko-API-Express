@@ -2,64 +2,33 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const request = require("request-promise");
-const Timeout = require("await-timeout");
 
-const cheerio = require("cheerio");
+const CoinGecko = require("coingecko-api");
+const CoinGeckoClient = new CoinGecko();
 
-let $;
-let lastGET;
-let loading = false;
+const getCoinData = async name => {
+  const {
+    data: { market_data: marketData },
+  } = await CoinGeckoClient.coins.fetch(name, {
+    community_data: false,
+    developer_data: false,
+    localization: false,
+  });
 
-const updateData = async () => {
-  loading = true;
-  console.log("LOADING");
-  const body = await request("https://coinmarketcap.com/all/views/all/");
-  console.log("LOADED");
-  $ = cheerio.load(body);
-  lastGET = Date.now();
-  loading = false;
+  const price = marketData.current_price["cad"];
+
+  const hour = marketData.price_change_percentage_1h_in_currency["cad"];
+  const day = marketData.price_change_percentage_24h_in_currency["cad"];
+  const week = marketData.price_change_percentage_7d_in_currency["cad"];
+
+  const marketcap = marketData.market_cap["cad"];
+
+  return { price, historical: { hour, day, week }, marketcap };
 };
 
-const ensureData = async () => {
-  console.log("Testing. Is loading?", loading);
-  if (loading) {
-    while (loading) {
-      console.log("Already loading, waiting");
-      await Timeout.set(100);
-    }
-    return;
-  }
-
-  if (!$ || Date.now() - lastGET > 60000) await updateData();
-};
-
-app.get("/historical/:name", async (req, res) => {
-  await ensureData();
-
-  const hour =
-    parseFloat(
-      $(`#id-${req.params.name} td[data-timespan='1h']`).attr("data-percentusd")
-    ) / 100;
-  const day =
-    parseFloat(
-      $(`#id-${req.params.name} td[data-timespan='24h']`).attr(
-        "data-percentusd"
-      )
-    ) / 100;
-  const week =
-    parseFloat(
-      $(`#id-${req.params.name} td[data-timespan='7d']`).attr("data-percentusd")
-    ) / 100;
-
-  res.send({ hour, day, week });
-});
-
-app.get("/price/:name", async (req, res) => {
-  await ensureData();
-
-  const price = $(`#id-${req.params.name} .price`).attr("data-usd");
-
-  res.send({ price });
+app.get("/:prop/:name", async (req, res) => {
+  const data = await getCoinData(req.params.name);
+  res.json(data[req.params.prop]);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}!`));
