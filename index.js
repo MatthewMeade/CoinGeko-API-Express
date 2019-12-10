@@ -15,13 +15,13 @@ const getCoinData = async name => {
     localization: false,
   });
 
-  const price = marketData.current_price["cad"];
+  const price = marketData.current_price["usd"];
 
-  const hour = marketData.price_change_percentage_1h_in_currency["cad"];
-  const day = marketData.price_change_percentage_24h_in_currency["cad"];
-  const week = marketData.price_change_percentage_7d_in_currency["cad"];
+  const hour = marketData.price_change_percentage_1h_in_currency["usd"];
+  const day = marketData.price_change_percentage_24h_in_currency["usd"];
+  const week = marketData.price_change_percentage_7d_in_currency["usd"];
 
-  const marketcap = marketData.market_cap["cad"];
+  const marketcap = marketData.market_cap["usd"];
 
   return { price, historical: { hour, day, week }, marketcap };
 };
